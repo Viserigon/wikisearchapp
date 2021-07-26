@@ -1,112 +1,103 @@
-/**
- * Sample React Native App
- * https://github.com/facebook/react-native
- *
- * @format
- * @flow strict-local
- */
-
-import React from 'react';
-import type {Node} from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   SafeAreaView,
-  ScrollView,
-  StatusBar,
+  FlatList,
+  TextInput,
   StyleSheet,
   Text,
-  useColorScheme,
   View,
+  TouchableOpacity,
 } from 'react-native';
 
-import {
-  Colors,
-  DebugInstructions,
-  Header,
-  LearnMoreLinks,
-  ReloadInstructions,
-} from 'react-native/Libraries/NewAppScreen';
+const wikipediaAPIUrl = 'https://en.wikipedia.org/w/api.php';
 
-const Section = ({children, title}): Node => {
-  const isDarkMode = useColorScheme() === 'dark';
-  return (
-    <View style={styles.sectionContainer}>
-      <Text
-        style={[
-          styles.sectionTitle,
-          {
-            color: isDarkMode ? Colors.white : Colors.black,
-          },
-        ]}>
-        {title}
-      </Text>
-      <Text
-        style={[
-          styles.sectionDescription,
-          {
-            color: isDarkMode ? Colors.light : Colors.dark,
-          },
-        ]}>
-        {children}
-      </Text>
+const App = () => {
+  const [url, setUrl] = useState();
+  const [data, setData] = useState();
+  const [input, setInput] = useState();
+  
+useEffect(() =>{
+  fetch(wikipediaAPIUrl)
+  .then(() => setUrl(`${wikipediaAPIUrl}?action=query&list=search&srsearch=${input}&format=json`));
+  
+ },  [input]);
+
+
+
+  useEffect(() => {
+    fetch(url)
+    .then((response) => response.json())
+    .then((json) => setData(json.search))
+    .catch((error) => alert(error));
+
+  });
+
+  const ListEmptyComponent = () => {
+    return <View>
+      <Text style={styles.emptyComponent} >No Results Found</Text>
     </View>
-  );
-};
-
-const App: () => Node = () => {
-  const isDarkMode = useColorScheme() === 'dark';
-
-  const backgroundStyle = {
-    backgroundColor: isDarkMode ? Colors.darker : Colors.lighter,
-  };
-
+  }
+  
   return (
-    <SafeAreaView style={backgroundStyle}>
-      <StatusBar barStyle={isDarkMode ? 'light-content' : 'dark-content'} />
-      <ScrollView
-        contentInsetAdjustmentBehavior="automatic"
-        style={backgroundStyle}>
-        <Header />
-        <View
-          style={{
-            backgroundColor: isDarkMode ? Colors.black : Colors.white,
-          }}>
-          <Section title="Step One">
-            Edit <Text style={styles.highlight}>App.js</Text> to change this
-            screen and then come back to see your edits.
-          </Section>
-          <Section title="See Your Changes">
-            <ReloadInstructions />
-          </Section>
-          <Section title="Debug">
-            <DebugInstructions />
-          </Section>
-          <Section title="Learn More">
-            Read the docs to discover what to do next:
-          </Section>
-          <LearnMoreLinks />
-        </View>
-      </ScrollView>
+    <SafeAreaView stlyle={styles.background}>
+      <View>
+        <Text style={styles.title}>Searchify</Text>
+        <TextInput value ={input} onChangeText={setInput} placeholder="Search Wikipedia" placeholderTextColor="grey" maxLength={35} style={styles.searchInput}>
+
+        </TextInput>
+      </View>
+      <View>
+      <FlatList 
+      data={data}
+      keyExtractor={({id}, index) => id}
+      renderItem={({item}) => {
+        <TouchableOpacity>
+        <Text>{item.title}</Text>
+        </TouchableOpacity>
+      }}
+
+      ListEmptyComponent= {ListEmptyComponent}
+      style={styles.flatList} /> 
+      </View>
+
+
     </SafeAreaView>
-  );
+  )
 };
 
-const styles = StyleSheet.create({
-  sectionContainer: {
-    marginTop: 32,
-    paddingHorizontal: 24,
+const styles = StyleSheet.create ({
+  title:{
+    fontSize: 30,
+    fontFamily: "Goudy Bookletter 1911",
+    fontWeight: "bold",
+    color: "#00CCCC",
+    alignSelf: "center",
+    marginTop: 40,
+
   },
-  sectionTitle: {
-    fontSize: 24,
-    fontWeight: '600',
+  searchInput: {
+    marginTop: 20,
+    marginHorizontal: 40,
+    borderWidth: 2,
+    borderRadius: 5,
+    borderColor: "#00CCCC",
   },
-  sectionDescription: {
-    marginTop: 8,
-    fontSize: 18,
-    fontWeight: '400',
+  flatList: {
+    marginTop: 30,
+    borderTopWidth: 2,
+    borderColor: "#00CCCC",
   },
-  highlight: {
-    fontWeight: '700',
-  },
+  emptyComponent: {
+    fontSize: 20,
+    color: "#00CCCC",
+    alignSelf: "center",
+    marginTop: 10,
+  }
+
 });
+    
+
+
+
 
 export default App;
