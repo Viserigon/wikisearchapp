@@ -13,7 +13,7 @@ const wikipediaAPIUrl = 'https://en.wikipedia.org/w/api.php';
 
 const App = () => {
   const [url, setUrl] = useState();
-  const [data, setData] = useState();
+  const [title, setTitle] = useState();
   const [input, setInput] = useState();
   
 useEffect(() =>{
@@ -27,9 +27,8 @@ useEffect(() =>{
   useEffect(() => {
     fetch(url)
     .then((response) => response.json())
-    .then((json) => setData(json.search))
-    .catch((error) => alert(error));
-
+    .then((json) => setTitle(json.query.search[0].title))
+    .catch((error) => alert(error))
   });
 
   const ListEmptyComponent = () => {
@@ -45,20 +44,15 @@ useEffect(() =>{
         <TextInput value ={input} onChangeText={setInput} placeholder="Search Wikipedia" placeholderTextColor="grey" maxLength={35} style={styles.searchInput}>
 
         </TextInput>
+        <Text>{title}</Text>
       </View>
-      <View>
-      <FlatList 
-      data={data}
-      keyExtractor={({id}, index) => id}
-      renderItem={({item}) => {
-        <TouchableOpacity>
-        <Text>{item.title}</Text>
-        </TouchableOpacity>
-      }}
-
+      <FlatList
+      data={title}
+      renderItem={({ item }) => (
+        <Text style={styles.flatListText}>{item}</Text>
+      )}
       ListEmptyComponent= {ListEmptyComponent}
       style={styles.flatList} /> 
-      </View>
 
 
     </SafeAreaView>
@@ -68,7 +62,6 @@ useEffect(() =>{
 const styles = StyleSheet.create ({
   title:{
     fontSize: 30,
-    fontFamily: "Goudy Bookletter 1911",
     fontWeight: "bold",
     color: "#00CCCC",
     alignSelf: "center",
@@ -86,6 +79,10 @@ const styles = StyleSheet.create ({
     marginTop: 30,
     borderTopWidth: 2,
     borderColor: "#00CCCC",
+  },
+  flatListText:{
+    
+
   },
   emptyComponent: {
     fontSize: 20,
