@@ -7,13 +7,14 @@ import {
   Text,
   View,
   TouchableOpacity,
+  Linking,
 } from 'react-native';
 
 const wikipediaAPIUrl = 'https://en.wikipedia.org/w/api.php';
 
 const App = () => {
   const [url, setUrl] = useState();
-  const [title, setTitle] = useState();
+  const [data, setData] = useState();
   const [input, setInput] = useState();
   
 useEffect(() =>{
@@ -27,9 +28,9 @@ useEffect(() =>{
   useEffect(() => {
     fetch(url)
     .then((response) => response.json())
-    .then((json) => setTitle(json.query.search[0].title))
+    .then((json) => setData(json.query.search))
     .catch((error) => alert(error))
-  });
+  }, [url]);
 
   const ListEmptyComponent = () => {
     return <View>
@@ -37,6 +38,11 @@ useEffect(() =>{
     </View>
   }
   
+
+
+
+
+
   return (
     <SafeAreaView stlyle={styles.background}>
       <View>
@@ -44,12 +50,18 @@ useEffect(() =>{
         <TextInput value ={input} onChangeText={setInput} placeholder="Search Wikipedia" placeholderTextColor="grey" maxLength={35} style={styles.searchInput}>
 
         </TextInput>
-        <Text>{title}</Text>
       </View>
       <FlatList
-      data={title}
+      data={data}
       renderItem={({ item }) => (
-        <Text style={styles.flatListText}>{item}</Text>
+        <View>
+        <TouchableOpacity
+            onPress={() =>
+              Linking.openURL(`https://en.wikipedia.org/?curid=${item.pageid}`)
+            }>
+            <Text style={styles.header}>{`${item.title}`}</Text>
+          </TouchableOpacity>
+        </View>
       )}
       ListEmptyComponent= {ListEmptyComponent}
       style={styles.flatList} /> 
